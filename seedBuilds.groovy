@@ -120,7 +120,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 condition {
                     status("FAILURE", "FAILURE")
                 }
-                shell("git branch -D ${repoName}-$MAJOR_VERSION_NUMBER.$BUILD_NUMBER")
+                shell("git branch -D ${repoName}-\$MAJOR_VERSION_NUMBER.\$BUILD_NUMBER")
             }
 
         }
