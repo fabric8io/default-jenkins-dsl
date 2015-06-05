@@ -82,6 +82,7 @@ repos.each { repo ->
 
     if (!excludedProjectNames.contains(repoName) && (includedProjectNames.contains(repoName) || includedProjectNames.isEmpty())) {
         println "Adding repo ${repoName} to jenkins build"
+        createJobs(repoName, fullName, gitUrl, username, password)
     }
 }
 
