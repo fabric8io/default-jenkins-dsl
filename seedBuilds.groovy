@@ -47,8 +47,10 @@ freeStyleJob('base-freestyle-build') {
     }
 }
 
-def properties = System.getenv().toSorted()
-properties.each { k, v ->  println "${k} = ${v}"}
+def properties = System.getenv()
+properties.keySet().toSorted().each { k ->
+    println "${k} = ${properties[k]}"
+}
 
 def username = 'ceposta'
 def password = 'RedHat$1'
