@@ -47,8 +47,9 @@ freeStyleJob('base-freestyle-build') {
     }
 }
 
-def properties = System.getenv()
-properties.keySet().toSorted().each { k ->
+def properties = new TreeMap()
+properties.putAll(System.getenv())
+properties.each { k, v ->
     println "${k} = ${properties[k]}"
 }
 
