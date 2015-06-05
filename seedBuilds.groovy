@@ -3,6 +3,29 @@ import io.fabric8.repo.git.resteasy.ResteasyGitRepoClient;
 def excludedProjectNames = []
 def includedProjectNames = []
 
+def username = 'ceposta'
+def password = 'RedHat$1'
+
+def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
+
+println "Using git api url: ${address}"
+
+def mavenVersion = '3.3.1'
+
+def fabric8Version = '2.1.10'
+def fabric8Goal = "io.fabric8:fabric8-maven-plugin:${fabric8Version}"
+
+def mavenPath = "/var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/${mavenVersion}/apache-maven-${mavenVersion}"
+def mavenBin = "${mavenPath}/bin/mvn"
+
+// lets try run a maven command
+def mvnCall(command) {
+  def mvnProc = command.execute()
+  println ">>> ${command}"
+  println mvnProc.text
+}
+
+
 mavenJob('base-maven-build') {
     keepDependencies(false)
 
@@ -47,19 +70,6 @@ freeStyleJob('base-freestyle-build') {
     }
 }
 
-def properties = new TreeMap()
-properties.putAll(System.getenv())
-properties.each { k, v ->
-    println "${k} = ${properties[k]}"
-}
-
-def username = 'ceposta'
-def password = 'RedHat$1'
-
-
-def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
-
-println "Using git api url: ${address}"
 
 def client = ResteasyGitRepoClient.createWithContextClassLoader(address, username, password)
 repos = client.listRepositories()
@@ -72,17 +82,19 @@ repos.each { repo ->
 
     if (!excludedProjectNames.contains(repoName) && (includedProjectNames.contains(repoName) || includedProjectNames.isEmpty())) {
         println "Adding repo ${repoName} to jenkins build"
-        createJobs(repoName, fullName, gitUrl, username, password)
-
     }
 }
 
 
 def createJobs(repoName, fullName, gitUrl, username, password) {
+    def firstJobName = "${repoName}-ci"
+    def monitorViewName = "${repoName}-cd-monitor"
+    def pipelineViewName = "${repoName}-cd-pipeline"
+
     /**
      * CI Build
      */
-    mavenJob("${repoName}-ci") {
+    mavenJob(firstJobName) {
         using('base-maven-build')
         description('Run the build and the unit tests with a specific version. If they pass, move it to the next step.')
         blockOnDownstreamProjects()
@@ -233,7 +245,8 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         goals('clean install')
     }
 
-    buildPipelineView("${repoName}-cd-pipeline") {
+
+    buildPipelineView(pipelineViewName) {
         selectedJob("${repoName}-ci")
         title("Continuous Delivery pipeline for ${repoName}")
         refreshFrequency(30)
@@ -244,7 +257,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         consoleOutputLinkStyle(OutputStyle.NewWindow)
     }
 
-    buildMonitorView("${repoName}-cd-monitor") {
+    buildMonitorView(monitorViewName) {
         description("All jobs for the ${repoName} CD pipeline")
         jobs {
             name("${repoName}-ci")
@@ -253,6 +266,14 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
             name("${repoName}-dev-accept")
         }
     }
+
+
+    // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
+    //
+    // TODO lets disable until 2.1.10 released:
+    //
+    // mvnCall
+    println "${mavenBin} ${fabric8Goal}:create-build-config -Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
 }
 
 
