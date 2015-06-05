@@ -31,10 +31,7 @@ def mvnFabric8CreateBuildConfig(options) {
     def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
     println "Creating the OpenShift BuildConfig"
 
-    // TODO lets disable until 2.1.10 released:
-    //
-    // mvnCall command
-    println "TODO: mvn ${command}"
+    mvnCall command
 }
 
 mavenJob('base-maven-build') {
@@ -281,9 +278,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
 
     // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
-    //
-    // TODO lets disable until 2.1.10 released:
-
     mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
 }
 
