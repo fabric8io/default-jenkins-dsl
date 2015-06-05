@@ -10,21 +10,32 @@ def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
 
 println "Using git api url: ${address}"
 
-def mavenVersion = '3.3.1'
-
-def fabric8Version = '2.1.10'
-def fabric8Goal = "io.fabric8:fabric8-maven-plugin:${fabric8Version}"
-
-def mavenPath = "/var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/${mavenVersion}/apache-maven-${mavenVersion}"
-def mavenBin = "${mavenPath}/bin/mvn"
-
 // lets try run a maven command
-def mvnCall(command) {
+def callCommand(String command) {
   def mvnProc = command.execute()
   println ">>> ${command}"
   println mvnProc.text
 }
 
+def mvnCall(goals) {
+    def mavenVersion = '3.3.1'
+    def mavenPath = "/var/jenkins_home/tools/hudson.tasks.Maven_MavenInstallation/${mavenVersion}/apache-maven-${mavenVersion}"
+    def mavenBin = "${mavenPath}/bin/mvn"
+
+    callCommand "${mavenBin} ${goals}"
+}
+
+def mvnFabric8CreateBuildConfig(options) {
+    def fabric8Version = '2.1.10'
+
+    def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
+    println "Creating the OpenShift BuildConfig"
+
+    // TODO lets disable until 2.1.10 released:
+    //
+    // mvnCall command
+    println "TODO: mvn ${command}"
+}
 
 mavenJob('base-maven-build') {
     keepDependencies(false)
@@ -272,9 +283,8 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
     // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
     //
     // TODO lets disable until 2.1.10 released:
-    //
-    // mvnCall
-    println "${mavenBin} ${fabric8Goal}:create-build-config -Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
+
+    mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
 }
 
 
