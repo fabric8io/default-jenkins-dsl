@@ -3,8 +3,8 @@ import io.fabric8.repo.git.resteasy.ResteasyGitRepoClient;
 def excludedProjectNames = []
 def includedProjectNames = []
 
-def username = 'ceposta'
-def password = 'RedHat$1'
+def username = "${JENKINS_GOGS_USER}"
+def password = "${JENKINS_GOGS_PASSWORD}"
 
 def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
 
