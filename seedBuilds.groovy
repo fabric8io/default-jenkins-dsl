@@ -132,7 +132,11 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         }
         preBuildSteps {
             shell("git checkout -b ${repoName}-\$MAJOR_VERSION_NUMBER.\$BUILD_NUMBER")
-            maven('versions:set -DnewVersion=$MAJOR_VERSION_NUMBER.$BUILD_NUMBER')
+            maven {
+              mavenInstallation('3.3.1')
+              goals('versions:set')
+              goals('-DnewVersion=$MAJOR_VERSION_NUMBER.$BUILD_NUMBER')
+            }
         }
         postBuildSteps {
             conditionalSteps {
