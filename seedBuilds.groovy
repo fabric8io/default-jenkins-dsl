@@ -108,13 +108,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         description('Run the build and the unit tests with a specific version. If they pass, move it to the next step.')
         blockOnDownstreamProjects()
 
-        parameters {
-            stringParam(
-                    'MAJOR_VERSION_NUMBER', // param name
-                    '1.0', // default value
-                    'The major version. We will not use SNAPSHOTs for CD, so need to give a real version'
-            )
-        }
         scm {
             git(gitUrl, '*/master') {
                 clean(true)
@@ -126,16 +119,16 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
             downstreamParameterized {
                 trigger(repoName + "-it", 'SUCCESS', false){
                     predefinedProp('TAG_PREFIX', repoName)
-                    predefinedProp('RELEASE_NUMBER', '$MAJOR_VERSION_NUMBER.$BUILD_NUMBER')
+                    predefinedProp('RELEASE_NUMBER', '1.0.$BUILD_NUMBER')
                 }
             }
         }
         preBuildSteps {
-            shell("git checkout -b ${repoName}-\$MAJOR_VERSION_NUMBER.\$BUILD_NUMBER")
+            shell("git checkout -b ${repoName}-1.0.\$BUILD_NUMBER")
             maven {
               mavenInstallation('3.3.1')
               goals('versions:set')
-              goals('-DnewVersion=$MAJOR_VERSION_NUMBER.$BUILD_NUMBER')
+              goals('-DnewVersion=1.0.$BUILD_NUMBER')
             }
         }
         postBuildSteps {
@@ -145,18 +138,18 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 }
 
                 shell("git commit -a -m \'new release candidate\' \n " +
-                      "git push http://${username}:${password}@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-\$MAJOR_VERSION_NUMBER.\$BUILD_NUMBER")
+                      "git push http://${username}:${password}@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
             }
             conditionalSteps {
                 condition {
                     status("FAILURE", "FAILURE")
                 }
-                shell("git branch -D ${repoName}-\$MAJOR_VERSION_NUMBER.\$BUILD_NUMBER")
+                shell("git branch -D ${repoName}-1.0.\$BUILD_NUMBER")
             }
 
         }
 
-        goals('clean install')
+        goals('clean install docker:build fabric8:json fabric8:apply')
     }
 
     /**
