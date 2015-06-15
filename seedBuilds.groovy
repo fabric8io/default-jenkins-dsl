@@ -26,7 +26,9 @@ def mvnCall(goals) {
 }
 
 def mvnFabric8CreateBuildConfig(options) {
-    def fabric8Version = '2.1.11'
+    // TODO until 2.1.12 lets use a snapshot so we can try out the auto-generation of webhooks
+    //def fabric8Version = '2.1.11'
+    def fabric8Version = '2.2-SNAPSHOT'
 
     def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
     println "Creating the OpenShift BuildConfig"
@@ -275,7 +277,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
 
     // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
-    mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
+    mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username}  -Dfabric8.password=${password} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
 }
 
 
