@@ -27,14 +27,8 @@ def mvnCall(goals) {
 
 def mvnFabric8CreateBuildConfig(options) {
 
-    // TODO until 2.1.12 lets use a snapshot so we can try out the auto-generation of webhooks
-    def fabric8Version = '2.2-SNAPSHOT'
-    def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config -U ${options}"
-
-    /*
-    def fabric8Version = '2.1.11'
+    def fabric8Version = '2.2.0'
     def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
-    */
     println "Creating the OpenShift BuildConfig"
 
     mvnCall command
