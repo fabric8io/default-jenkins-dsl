@@ -148,7 +148,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 condition {
                     status("SUCCESS", "SUCCESS")
                 }
-
+                runner("Fail")
                 shell("git commit -a -m \'new release candidate\' \n " +
                       "git push http://${username}:${password}@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
             }
@@ -156,6 +156,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 condition {
                     status("FAILURE", "FAILURE")
                 }
+                runner("Fail")
                 shell("git branch -D ${repoName}-1.0.\$BUILD_NUMBER")
             }
 
