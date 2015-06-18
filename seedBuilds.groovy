@@ -161,7 +161,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
         }
 
-        goals('clean install docker:build fabric8:json fabric8:apply')
+        goals('clean install')
     }
 
     /**
