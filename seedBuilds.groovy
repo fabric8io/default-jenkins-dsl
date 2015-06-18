@@ -6,6 +6,9 @@ def includedProjectNames = []
 def username = "${JENKINS_GOGS_USER}"
 def password = "${JENKINS_GOGS_PASSWORD}"
 
+def gerritUser = "admin"
+def gerritPassword = "secret"
+
 def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
 
 println "Using git api url: ${address}"
@@ -32,6 +35,15 @@ def mvnFabric8CreateBuildConfig(options) {
     println "Creating the OpenShift BuildConfig"
 
     mvnCall command
+}
+
+def mvnFabric8CreateGerritRepo(options) {
+
+  def fabric8Version = '2.2.0'
+  def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-gitrepo ${options}"
+  println "Creating a Gerrit Repository"
+
+  mvnCall command
 }
 
 mavenJob('base-maven-build') {
@@ -276,6 +288,8 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
     // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
     mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username}  -Dfabric8.password=${password} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
+
+    mvnFabric8CreateGerritRepo "-Drepo=${repoName} -DgerritAdminUsername=admin -DgerritAdminPassword=secret"
 }
 
 
