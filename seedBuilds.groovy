@@ -161,7 +161,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
         }
 
-        goals('clean install')
+        goals('clean deploy')
     }
 
     /**
