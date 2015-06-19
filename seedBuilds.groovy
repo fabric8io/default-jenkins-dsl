@@ -225,7 +225,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
             )
         }
         scm {
-            git(gitUrl, '${TAG-PREFIX}-${RELEASE_NUMBER}') {
+            git(gitUrl, '$TAG_PREFIX-$RELEASE_NUMBER') {
                 clean(true)
                 createTag(false)
                 cloneTimeout(30)
@@ -239,6 +239,8 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 }
             }
         }
+
+        goals('docker:build fabric8:json fabric8:apply -Dfabric8.namespace=development')
     }
 
     /**
