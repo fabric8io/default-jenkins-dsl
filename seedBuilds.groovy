@@ -6,8 +6,6 @@ def includedProjectNames = []
 def username = "${JENKINS_GOGS_USER}"
 def password = "${JENKINS_GOGS_PASSWORD}"
 
-def gerritUser = "admin"
-def gerritPassword = "secret"
 
 def address = "http://${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/"
 
@@ -49,6 +47,10 @@ def mvnFabric8CreateGerritRepo(options) {
 mavenJob('base-maven-build') {
     keepDependencies(false)
 
+    environmentVariables {
+        env("JENKINS_GOGS_USER", username)
+        env("JENKINS_GOGS_PASSWORD", password)
+    }
     logRotator(
             1, // days to keep
             5, // num to keep
@@ -153,7 +155,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 }
                 runner("Fail")
                 shell("git commit -a -m \'new release candidate\' \n " +
-                      "git push http://${username}:"+escape(password)+"@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
+                      "git push http://\$JENKINS_GOGS_USERNAME:\$JENKINS_GOGS_PASSWORD@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
             }
             conditionalSteps {
                 condition {
