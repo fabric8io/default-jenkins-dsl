@@ -190,7 +190,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
             )
         }
         scm {
-            git(gitUrl, '${TAG-PREFIX}-${RELEASE_NUMBER}') {
+            git(gitUrl, '$TAG_PREFIX-$RELEASE_NUMBER') {
                 clean(true)
                 createTag(false)
                 cloneTimeout(30)
