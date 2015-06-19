@@ -44,12 +44,16 @@ def mvnFabric8CreateGerritRepo(options) {
   mvnCall command
 }
 
+def escape(token){
+    return token.replace('$', '\\$')
+}
+
 mavenJob('base-maven-build') {
     keepDependencies(false)
 
     environmentVariables {
-        env("JENKINS_GOGS_USER", username)
-        env("JENKINS_GOGS_PASSWORD", password)
+        env("JENKINS_GOGS_USERNAME", username)
+        env("JENKINS_GOGS_PASSWORD", escape(password))
     }
     logRotator(
             1, // days to keep
@@ -108,9 +112,6 @@ repos.each { repo ->
     }
 }
 
-def escape(token){
-  return token.replaceAll('$', '\$')
-}
 
 def createJobs(repoName, fullName, gitUrl, username, password) {
     def firstJobName = "${repoName}-ci"
