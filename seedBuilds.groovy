@@ -106,6 +106,9 @@ repos.each { repo ->
     }
 }
 
+def escape(token){
+  return token.replaceAll('$', '\$')
+}
 
 def createJobs(repoName, fullName, gitUrl, username, password) {
     def firstJobName = "${repoName}-ci"
@@ -150,7 +153,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
                 }
                 runner("Fail")
                 shell("git commit -a -m \'new release candidate\' \n " +
-                      "git push http://${username}:${password}@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
+                      "git push http://${username}:"+escape(password)+"@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
             }
             conditionalSteps {
                 condition {
