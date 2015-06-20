@@ -210,7 +210,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
     /**
      * Deploy to DEV
      */
-    freeStyleJob("${repoName}-dev-deploy") {
+    mavenJob("${repoName}-dev-deploy") {
         using('base-freestyle-build')
         parameters {
             stringParam(
@@ -240,7 +240,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
             }
         }
 
-        goals('docker:build fabric8:json fabric8:apply -Dfabric8.namespace=development')
+        goals('package docker:build fabric8:json fabric8:apply -Dfabric8.namespace=development')
     }
 
     /**
