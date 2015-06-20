@@ -211,7 +211,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
      * Deploy to DEV
      */
     mavenJob("${repoName}-dev-deploy") {
-        using('base-freestyle-build')
+        using('base-maven-build')
         parameters {
             stringParam(
                     'TAG_PREFIX', // prefix of the tag we created in the CI step, usually the repo name
