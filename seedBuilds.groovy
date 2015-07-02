@@ -136,7 +136,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         publishers {
             downstreamParameterized {
                 trigger(repoName + "-it", 'SUCCESS', false){
-                    predefinedProp('TAG_PREFIX', repoName)
                     predefinedProp('RELEASE_NUMBER', '1.0.$BUILD_NUMBER')
                 }
             }
@@ -149,25 +148,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
               goals('-DnewVersion=1.0.$BUILD_NUMBER')
             }
         }
-        postBuildSteps {
-            conditionalSteps {
-                condition {
-                    status("SUCCESS", "SUCCESS")
-                }
-                runner("Fail")
-                shell("git commit -a -m \'new release candidate\' \n " +
-                      "git push http://\$JENKINS_GOGS_USERNAME:\$JENKINS_GOGS_PASSWORD@${GOGS_SERVICE_HOST}:${GOGS_SERVICE_PORT}/${fullName}.git  ${repoName}-1.0.\$BUILD_NUMBER")
-            }
-            conditionalSteps {
-                condition {
-                    status("FAILURE", "FAILURE")
-                }
-                runner("Fail")
-                shell("git branch -D ${repoName}-1.0.\$BUILD_NUMBER")
-            }
-
-        }
-
         goals('clean deploy')
     }
 
@@ -179,18 +159,13 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         description('Run the itests for this module (expected to have a maven profile named itests. If they pass, move it to the next step.')
         parameters {
             stringParam(
-                    'TAG_PREFIX', // prefix of the tag we created in the CI step, usually the repo name
-                    repoName, // default value
-                    'The tag prefix we created for the build if it passed the CI step'
-            )
-            stringParam(
                     'RELEASE_NUMBER', // the release we pushed to nexus and git repo
                     '', // no good default for this at the moment
                     'The release we pushed to nexus and git repo'
             )
         }
         scm {
-            git(gitUrl, '$TAG_PREFIX-$RELEASE_NUMBER') {
+            git(gitUrl, '*/master') {
                 clean(true)
                 createTag(false)
                 cloneTimeout(30)
@@ -199,7 +174,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         publishers {
             downstreamParameterized {
                 trigger("${repoName}-dev-deploy", 'SUCCESS', false){
-                    predefinedProp('TAG_PREFIX', '$TAG_PREFIX')
                     predefinedProp('RELEASE_NUMBER', '$RELEASE_NUMBER')
                 }
             }
@@ -214,18 +188,13 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         using('base-maven-build')
         parameters {
             stringParam(
-                    'TAG_PREFIX', // prefix of the tag we created in the CI step, usually the repo name
-                    repoName, // default value
-                    'The tag prefix we created for the build if it passed the CI step'
-            )
-            stringParam(
                     'RELEASE_NUMBER', // the release we pushed to nexus and git repo
                     '', // no good default for this at the moment
                     'The release we pushed to nexus and git repo'
             )
         }
         scm {
-            git(gitUrl, '$TAG_PREFIX-$RELEASE_NUMBER') {
+            git(gitUrl, '*/master') {
                 clean(true)
                 createTag(false)
                 cloneTimeout(30)
@@ -234,7 +203,6 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         publishers {
             downstreamParameterized {
                 trigger("${repoName}-dev-accept", 'SUCCESS', false){
-                    predefinedProp('TAG_PREFIX', '$TAG_PREFIX')
                     predefinedProp('RELEASE_NUMBER', '$RELEASE_NUMBER')
                 }
             }
@@ -250,19 +218,13 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
         using('base-maven-build')
         parameters {
             stringParam(
-                    'TAG_PREFIX', // prefix of the tag we created in the CI step, usually the repo name
-                    repoName, // default value
-                    'The tag prefix we created for the build if it passed the CI step'
-            )
-            stringParam(
                     'RELEASE_NUMBER', // the release we pushed to nexus and git repo
                     '', // no good default for this at the moment
                     'The release we pushed to nexus and git repo'
             )
         }
         scm {
-            git(gitUrl) {
-                branch('master')
+            git(gitUrl, '*/master') {
                 clean(true)
                 createTag(false)
                 cloneTimeout(30)
@@ -296,7 +258,7 @@ def createJobs(repoName, fullName, gitUrl, username, password) {
 
 
     // now lets create an OpenShift BuildConfig for the CI / CD pipeline and passing in details of the Jenkins jobs and views:
-    //mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username}  -Dfabric8.password=${password} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
+    mvnFabric8CreateBuildConfig "-Dfabric8.repoName=${repoName} -Dfabric8.fullName=${fullName} -Dfabric8.gitUrl=${gitUrl} -Dfabric8.username=${username}  -Dfabric8.password=${password} -Dfabric8.jenkinsMonitorView=${monitorViewName}  -Dfabric8.jenkinsPipelineView=${pipelineViewName} -Dfabric8.jenkinsJob=${firstJobName}"
 
     mvnFabric8CreateGerritRepo "-Drepo=${repoName} -DgerritAdminUsername=admin -DgerritAdminPassword=secret"
 }
