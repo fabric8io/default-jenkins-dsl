@@ -28,7 +28,10 @@ def mvnCall(goals) {
 
 def mvnFabric8CreateBuildConfig(options) {
 
-    def fabric8Version = '2.2.5'
+    // lets use a snapshot until the next release
+    //
+    // def fabric8Version = '2.2.6'
+    def fabric8Version = '2.3-SNAPSHOT'
     def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
     println "Creating the OpenShift BuildConfig"
 
@@ -37,7 +40,7 @@ def mvnFabric8CreateBuildConfig(options) {
 
 def mvnFabric8CreateGerritRepo(options) {
 
-  def fabric8Version = '2.2.0'
+  def fabric8Version = '2.2.5'
   def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-gitrepo ${options}"
   println "Creating a Gerrit Repository"
 
