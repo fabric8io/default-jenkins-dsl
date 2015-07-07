@@ -28,12 +28,9 @@ def mvnCall(goals) {
 
 def mvnFabric8CreateBuildConfig(options) {
 
-    // lets use a snapshot until the next release
-    //
-    // def fabric8Version = '2.2.6'
-    def fabric8Version = '2.3-SNAPSHOT'
-    def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:create-build-config ${options}"
-    println "Creating the OpenShift BuildConfig"
+    def fabric8Version = '2.2.6'
+    def command = "io.fabric8:fabric8-maven-plugin:${fabric8Version}:devops ${options}"
+    println "Updating the DevOps configuration"
 
     mvnCall command
 }
